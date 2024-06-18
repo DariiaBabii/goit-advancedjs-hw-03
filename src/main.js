@@ -61,10 +61,10 @@ const loadCatInfo = async breedId => {
     const breed = breeds[0];
 
     catInfo.innerHTML = `
-      <img src="${url}" alt="${breed.name}" />
-      <h2>${breed.name}</h2>
-      <p>${breed.description}</p>
-      <p><strong>Temperament:</strong> ${breed.temperament}</p>
+      <img class="cat-img" src="${url}" alt="${breed.name}" />
+      <h2 class="cat-name">${breed.name}</h2>
+      <p class="cat-des">${breed.description}</p>
+      <p class="cat-des"><strong>Temperament:</strong> ${breed.temperament}</p>
     `;
     catInfo.classList.remove('invisible');
   } catch (error) {

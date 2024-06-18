@@ -21,7 +21,7 @@
   font-family: Playfair;
   width: 100%;
   max-width: 600px;
-  padding-bottom: 20px;
+  /* padding-bottom: 20px; */
 }
 
 body {
@@ -84,8 +84,4 @@ p {
   100% {
     clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
   }
-}
-
-.active {
-  display: block;
 }
