@@ -12,12 +12,12 @@
   gap: 16px;
 }
 
-.cat-img {
+img {
   max-width: 600px;
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
 }
 
-.cat-des {
+p {
   font-family: Playfair;
   width: 100%;
   max-width: 600px;
