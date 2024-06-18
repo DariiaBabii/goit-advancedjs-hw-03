@@ -1,80 +1,77 @@
-import { fetchBreeds } from './cat-api.js';
+import { fetchBreeds, fetchCatByBreed } from './cat-api.js';
 
+const breedSelect = document.querySelector('.breed-select');
 const loader = document.querySelector('.loader');
-const error = document.querySelector('.error');
+const errorElement = document.querySelector('.error');
 const catInfo = document.querySelector('.cat-info');
-let slimSelect;
 
-function initialize() {
-  showElement(loader);
-  hideElement(error);
-  hideElement(catInfo);
+const showLoader = () => {
+  loader.classList.remove('invisible');
+};
 
-  fetchBreeds()
-    .then(breeds => {
-      selectBreed(breeds);
-      hideElement(loader);
-    })
-    .catch(err => {
-      console.error('Error fetching breeds:', err);
-      iziToast.error({ title: 'Error', message: 'Failed to fetch breeds' });
-      hideElement(loader);
-      showElement(error);
+const hideLoader = () => {
+  loader.classList.add('invisible');
+};
+
+const showError = message => {
+  errorElement.classList.remove('invisible');
+  iziToast.error({
+    title: 'Error',
+    message: message,
+    position: 'topRight',
+  });
+};
+
+const hideError = () => {
+  errorElement.classList.add('invisible');
+};
+
+const loadBreeds = async () => {
+  showLoader();
+  hideError();
+  try {
+    const breeds = await fetchBreeds();
+    breeds.forEach(breed => {
+      const option = document.createElement('option');
+      option.value = breed.id;
+      option.textContent = breed.name;
+      breedSelect.appendChild(option);
     });
-}
-
-function selectBreed(breeds) {
-  const select = document.querySelector('.breed-select');
-
-  breeds.forEach(breed => {
-    const option = document.createElement('option');
-    option.value = breed.id;
-    option.textContent = breed.name;
-    select.appendChild(option);
-  });
-
-  slimSelect = new SlimSelect({
-    select: '.breed-select',
-    events: {
-      afterChange: newVal => {
-        showElement(loader);
-        hideElement(catInfo);
-        displayBreedInfo(newVal[0].value, breeds);
+    new SlimSelect({
+      select: breedSelect,
+      events: {
+        afterChange: newVal => loadCatInfo(newVal[0].value),
       },
-    },
-  });
+    });
+    breedSelect.classList.remove('invisible');
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    hideLoader();
+  }
+};
 
-  showElement(select);
-}
+const loadCatInfo = async breedId => {
+  showLoader();
+  hideError();
+  catInfo.classList.add('invisible');
+  try {
+    const cat = await fetchCatByBreed(breedId);
+    const { url, breeds } = cat;
+    const breed = breeds[0];
 
-function displayBreedInfo(breedId, breeds) {
-  const breed = breeds.find(b => b.id === breedId);
-
-  if (breed) {
     catInfo.innerHTML = `
-      <h2 class="cat-name">${breed.name}</h2>
-      <p class="cat-des">${breed.description}</p>
-      <img class="cat-img" src="${breed.image?.url || ''}" alt="${breed.name}">
+      <img src="${url}" alt="${breed.name}" />
+      <h2>${breed.name}</h2>
+      <p>${breed.description}</p>
+      <p><strong>Temperament:</strong> ${breed.temperament}</p>
     `;
-    hideElement(loader);
-    showElement(catInfo);
-  } else {
-    catInfo.innerHTML = `<p>Information about this breed is not available.</p>`;
-    hideElement(loader);
-    showElement(catInfo);
+    catInfo.classList.remove('invisible');
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    hideLoader();
   }
-}
+};
 
-function hideElement(element) {
-  if (!element.classList.contains('invisible')) {
-    element.classList.add('invisible');
-  }
-}
-
-function showElement(element) {
-  if (element.classList.contains('invisible')) {
-    element.classList.remove('invisible');
-  }
-}
-
-initialize();
+loadBreeds();
